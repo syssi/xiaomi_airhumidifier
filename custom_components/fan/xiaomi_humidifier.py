@@ -10,7 +10,7 @@ import voluptuous as vol
 
 from homeassistant.helpers.entity import ToggleEntity
 from homeassistant.components.fan import (FanEntity, PLATFORM_SCHEMA,
-                                          SUPPORT_SET_SPEED, DOMAIN)
+                                          SUPPORT_SET_SPEED, DOMAIN, )
 from homeassistant.const import (CONF_NAME, CONF_HOST, CONF_TOKEN,
                                  ATTR_ENTITY_ID, )
 from homeassistant.exceptions import PlatformNotReady
@@ -113,8 +113,8 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     for air_humidifier_service in SERVICE_TO_METHOD:
         schema = SERVICE_TO_METHOD[air_humidifier_service].get(
             'schema', AIRPURIFIER_SERVICE_SCHEMA)
-        hass.services.async_register(
-            DOMAIN, air_humidifier_service, async_service_handler, schema=schema)
+        hass.services.async_register(DOMAIN, air_humidifier_service,
+                                     async_service_handler, schema=schema)
 
 
 class XiaomiAirHumidifier(FanEntity):
@@ -131,7 +131,6 @@ class XiaomiAirHumidifier(FanEntity):
             ATTR_HUMIDITY: None,
             ATTR_MODE: None,
             ATTR_BUZZER: None,
-            ATTR_CHILD_LOCK: None,
             ATTR_LED: None,
             ATTR_LED_BRIGHTNESS: None,
         }
