@@ -33,7 +33,6 @@ ATTR_TEMPERATURE = 'temperature'
 ATTR_HUMIDITY = 'humidity'
 ATTR_MODE = 'mode'
 ATTR_BUZZER = 'buzzer'
-ATTR_LED = 'led'
 ATTR_LED_BRIGHTNESS = 'led_brightness'
 ATTR_BRIGHTNESS = 'brightness'
 
@@ -41,8 +40,6 @@ SUCCESS = ['ok']
 
 SERVICE_SET_BUZZER_ON = 'xiaomi_miio_set_buzzer_on'
 SERVICE_SET_BUZZER_OFF = 'xiaomi_miio_set_buzzer_off'
-SERVICE_SET_LED_ON = 'xiaomi_miio_set_led_on'
-SERVICE_SET_LED_OFF = 'xiaomi_miio_set_led_off'
 SERVICE_SET_LED_BRIGHTNESS = 'xiaomi_miio_set_led_brightness'
 
 AIRPURIFIER_SERVICE_SCHEMA = vol.Schema({
@@ -57,8 +54,6 @@ SERVICE_SCHEMA_LED_BRIGHTNESS = AIRPURIFIER_SERVICE_SCHEMA.extend({
 SERVICE_TO_METHOD = {
     SERVICE_SET_BUZZER_ON: {'method': 'async_set_buzzer_on'},
     SERVICE_SET_BUZZER_OFF: {'method': 'async_set_buzzer_off'},
-    SERVICE_SET_LED_ON: {'method': 'async_set_led_on'},
-    SERVICE_SET_LED_OFF: {'method': 'async_set_led_off'},
     SERVICE_SET_LED_BRIGHTNESS: {
         'method': 'async_set_led_brightness',
         'schema': SERVICE_SCHEMA_LED_BRIGHTNESS},
@@ -131,7 +126,6 @@ class XiaomiAirHumidifier(FanEntity):
             ATTR_HUMIDITY: None,
             ATTR_MODE: None,
             ATTR_BUZZER: None,
-            ATTR_LED: None,
             ATTR_LED_BRIGHTNESS: None,
         }
 
@@ -212,8 +206,7 @@ class XiaomiAirHumidifier(FanEntity):
                 ATTR_TEMPERATURE: state.temperature,
                 ATTR_HUMIDITY: state.humidity,
                 ATTR_MODE: state.mode.value,
-                ATTR_BUZZER: state.buzzer,
-                ATTR_LED: state.led,
+                ATTR_BUZZER: state.buzzer
             }
 
             if state.led_brightness:
@@ -262,20 +255,6 @@ class XiaomiAirHumidifier(FanEntity):
         yield from self._try_command(
             "Turning the buzzer of the air humidifier off failed.",
             self._air_humidifier.set_buzzer, False)
-
-    @asyncio.coroutine
-    def async_set_led_on(self):
-        """Turn the led on."""
-        yield from self._try_command(
-            "Turning the led of the air humidifier off failed.",
-            self._air_humidifier.set_led, True)
-
-    @asyncio.coroutine
-    def async_set_led_off(self):
-        """Turn the led off."""
-        yield from self._try_command(
-            "Turning the led of the air humidifier off failed.",
-            self._air_humidifier.set_led, False)
 
     @asyncio.coroutine
     def async_set_led_brightness(self, brightness: int=2):
