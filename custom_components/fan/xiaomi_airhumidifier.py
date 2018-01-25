@@ -27,7 +27,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
 })
 
-REQUIREMENTS = ['python-miio==0.3.4']
+REQUIREMENTS = ['https://github.com/rytilahti/python-miio/archive/'
+                '79c2904fee445169058981d278ab1dcf4081d991.zip'
+                '#python-miio']
 
 ATTR_TEMPERATURE = 'temperature'
 ATTR_HUMIDITY = 'humidity'
@@ -35,11 +37,17 @@ ATTR_MODE = 'mode'
 ATTR_BUZZER = 'buzzer'
 ATTR_LED_BRIGHTNESS = 'led_brightness'
 ATTR_BRIGHTNESS = 'brightness'
+ATTR_CHILD_LOCK = 'child_lock'
+ATTR_TARGET_HUMIDITY = 'target_humidity'
+ATTR_TRANS_LEVEL = 'trans_level'
 
 SUCCESS = ['ok']
 
 SERVICE_SET_BUZZER_ON = 'xiaomi_miio_set_buzzer_on'
 SERVICE_SET_BUZZER_OFF = 'xiaomi_miio_set_buzzer_off'
+SERVICE_SET_CHILD_LOCK_ON = 'xiaomi_miio_set_child_lock_on'
+SERVICE_SET_CHILD_LOCK_OFF = 'xiaomi_miio_set_child_lock_off'
+SERVICE_SET_TARGET_HUMIDITY = 'xiaomi_miio_set_target_humidity'
 SERVICE_SET_LED_BRIGHTNESS = 'xiaomi_miio_set_led_brightness'
 
 AIRPURIFIER_SERVICE_SCHEMA = vol.Schema({
@@ -51,9 +59,19 @@ SERVICE_SCHEMA_LED_BRIGHTNESS = AIRPURIFIER_SERVICE_SCHEMA.extend({
         vol.All(vol.Coerce(int), vol.Clamp(min=0, max=2))
 })
 
+SERVICE_SCHEMA_TARGET_HUMIDITY = AIRPURIFIER_SERVICE_SCHEMA.extend({
+    vol.Required(ATTR_HUMIDITY):
+        vol.All(vol.Coerce(int), vol.In([30, 40, 50, 60, 70, 80]))
+})
+
 SERVICE_TO_METHOD = {
     SERVICE_SET_BUZZER_ON: {'method': 'async_set_buzzer_on'},
     SERVICE_SET_BUZZER_OFF: {'method': 'async_set_buzzer_off'},
+    SERVICE_SET_CHILD_LOCK_ON: {'method': 'async_set_child_lock_on'},
+    SERVICE_SET_CHILD_LOCK_OFF: {'method': 'async_set_child_lock_off'},
+    SERVICE_SET_TARGET_HUMIDITY: {
+        'method': 'async_set_target_humidity',
+        'schema': SERVICE_SCHEMA_TARGET_HUMIDITY},
     SERVICE_SET_LED_BRIGHTNESS: {
         'method': 'async_set_led_brightness',
         'schema': SERVICE_SCHEMA_LED_BRIGHTNESS},
@@ -127,6 +145,9 @@ class XiaomiAirHumidifier(FanEntity):
             ATTR_MODE: None,
             ATTR_BUZZER: None,
             ATTR_LED_BRIGHTNESS: None,
+            ATTR_CHILD_LOCK: None,
+            ATTR_TRANS_LEVEL: None,
+            ATTR_TARGET_HUMIDITY: None,
         }
 
     @property
@@ -206,7 +227,10 @@ class XiaomiAirHumidifier(FanEntity):
                 ATTR_TEMPERATURE: state.temperature,
                 ATTR_HUMIDITY: state.humidity,
                 ATTR_MODE: state.mode.value,
-                ATTR_BUZZER: state.buzzer
+                ATTR_BUZZER: state.buzzer,
+                ATTR_CHILD_LOCK: state.child_lock,
+                ATTR_TRANS_LEVEL: state.trans_level,
+                ATTR_TARGET_HUMIDITY: state.target_humidity,
             }
 
             if state.led_brightness:
@@ -257,6 +281,20 @@ class XiaomiAirHumidifier(FanEntity):
             self._air_humidifier.set_buzzer, False)
 
     @asyncio.coroutine
+    def async_set_child_lock_on(self):
+        """Turn the child lock on."""
+        yield from self._try_command(
+            "Turning the child lock of the air humidifier on failed.",
+            self._air_humidifier.set_child_lock, True)
+
+    @asyncio.coroutine
+    def async_set_child_lock_off(self):
+        """Turn the child lock off."""
+        yield from self._try_command(
+            "Turning the child lock of the air humidifier off failed.",
+            self._air_humidifier.set_child_lock, False)
+
+    @asyncio.coroutine
     def async_set_led_brightness(self, brightness: int=2):
         """Set the led brightness."""
         from miio.airhumidifier import LedBrightness
@@ -264,3 +302,10 @@ class XiaomiAirHumidifier(FanEntity):
         yield from self._try_command(
             "Setting the led brightness of the air humidifier failed.",
             self._air_humidifier.set_led_brightness, LedBrightness(brightness))
+
+    @asyncio.coroutine
+    def async_set_target_humidity(self, humidity: int=40):
+        """Set the target humidity."""
+        yield from self._try_command(
+            "Setting the target humidity of the air humidifier failed.",
+            self._air_humidifier.set_target_humidity, humidity)

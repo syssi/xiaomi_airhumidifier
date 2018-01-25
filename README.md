@@ -10,15 +10,19 @@ Credits: Thanks to [Rytilahti](https://github.com/rytilahti/python-miio) for all
 * On, Off
 * Operation modes (silent, medium, high)
 * Buzzer (on, off)
-* LED (on, off), LED brightness (bright, dim, off)
+* LED brightness (bright, dim, off)
+* Child lock (on, off)
+* Target humidity (30, 40, 50, 60, 70, 80)
 * States
   - power
-  - humidity
   - temperature
+  - humidity
   - mode
-  - led
-  - led_brightness
   - buzzer
+  - led_brightness
+  - child_lock
+  - trans_level
+  - target_humidity
 
 ## Setup
 
@@ -38,39 +42,48 @@ fan:
 
 Turn the buzzer on.
 
-| Service data attribute    | Optional | Description                                             |
-|---------------------------|----------|---------------------------------------------------------|
-| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.  |
+| Service data attribute    | Optional | Description                                              |
+|---------------------------|----------|----------------------------------------------------------|
+| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.   |
 
 #### Service fan/xiaomi_miio_set_buzzer_off
 
 Turn the buzzer off.
 
-| Service data attribute    | Optional | Description                                             |
-|---------------------------|----------|---------------------------------------------------------|
-| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.  |
+| Service data attribute    | Optional | Description                                              |
+|---------------------------|----------|----------------------------------------------------------|
+| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.   |
 
-#### Service fan/xiaomi_miio_set_led_on
+#### Service fan/xiaomi_miio_set_child_lock_on
 
-Turn the led on.
+Turn the child lock on.
 
-| Service data attribute    | Optional | Description                                             |
-|---------------------------|----------|---------------------------------------------------------|
-| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.  |
+| Service data attribute    | Optional | Description                                              |
+|---------------------------|----------|----------------------------------------------------------|
+| `entity_id`               |      yes | Only act on a specific air humidifier. Else targets all. |
 
-#### Service fan/xiaomi_miio_set_led_off
+#### Service fan/xiaomi_miio_set_child_lock_off
 
-Turn the led off.
+Turn the child lock off.
 
-| Service data attribute    | Optional | Description                                             |
-|---------------------------|----------|---------------------------------------------------------|
-| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.  |
+| Service data attribute    | Optional | Description                                              |
+|---------------------------|----------|----------------------------------------------------------|
+| `entity_id`               |      yes | Only act on a specific air humidifier. Else targets all. |
 
 #### Service fan/xiaomi_miio_set_led_brightness
 
 Set the led brightness. Supported values are 0 (Bright), 1 (Dim), 2 (Off).
 
-| Service data attribute    | Optional | Description                                             |
-|---------------------------|----------|---------------------------------------------------------|
-| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.  |
-| `brightness`              |       no | Brightness, between 0 and 2.                            |
+| Service data attribute    | Optional | Description                                              |
+|---------------------------|----------|----------------------------------------------------------|
+| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.   |
+| `brightness`              |       no | Brightness, between 0 and 2.                             |
+
+#### Service fan/xiaomi_miio_set_target_humidity
+
+Set the target humidity. Supported values are 40, 50, 60, 70 and 80 percent.
+
+| Service data attribute    | Optional | Description                                              |
+|---------------------------|----------|----------------------------------------------------------|
+| `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.   |
+| `humidity`                |       no | Target humidity in percent: 30, 40, 50, 60, 70 or 80     |
