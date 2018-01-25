@@ -12,7 +12,7 @@ Credits: Thanks to [Rytilahti](https://github.com/rytilahti/python-miio) for all
 * Buzzer (on, off)
 * LED brightness (bright, dim, off)
 * Child lock (on, off)
-* Target humidity (40, 50, 60, 70, 80)
+* Target humidity (30, 40, 50, 60, 70, 80)
 * States
   - power
   - temperature
@@ -86,4 +86,4 @@ Set the target humidity. Supported values are 40, 50, 60, 70 and 80 percent.
 | Service data attribute    | Optional | Description                                              |
 |---------------------------|----------|----------------------------------------------------------|
 | `entity_id`               |      yes | Only act on specific air humidifier. Else targets all.   |
-| `humidity`                |       no | Humidity in percent: 40, 50, 60, 70 or 80                |
+| `humidity`                |       no | Target humidity in percent: 30, 40, 50, 60, 70 or 80     |

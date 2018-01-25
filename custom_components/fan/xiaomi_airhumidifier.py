@@ -59,7 +59,7 @@ SERVICE_SCHEMA_LED_BRIGHTNESS = AIRPURIFIER_SERVICE_SCHEMA.extend({
 
 SERVICE_SCHEMA_TARGET_HUMIDITY = AIRPURIFIER_SERVICE_SCHEMA.extend({
     vol.Required(ATTR_HUMIDITY):
-        vol.All(vol.Coerce(int), vol.In([40, 50, 60, 70, 80]))
+        vol.All(vol.Coerce(int), vol.In([30, 40, 50, 60, 70, 80]))
 })
 
 SERVICE_TO_METHOD = {
