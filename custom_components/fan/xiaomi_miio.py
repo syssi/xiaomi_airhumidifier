@@ -427,10 +427,8 @@ class XiaomiAirPurifier(XiaomiGenericDevice, FanEntity):
             ATTR_FILTER_HOURS_USED: None,
             ATTR_FILTER_LIFE: None,
             ATTR_FAVORITE_LEVEL: None,
-            ATTR_BUZZER: None,
             ATTR_CHILD_LOCK: None,
             ATTR_LED: None,
-            ATTR_LED_BRIGHTNESS: None,
             ATTR_MOTOR_SPEED: None,
             ATTR_AVERAGE_AIR_QUALITY_INDEX: None,
             ATTR_PURIFY_VOLUME: None,
@@ -440,17 +438,23 @@ class XiaomiAirPurifier(XiaomiGenericDevice, FanEntity):
             ATTR_EXTRA_FEATURES: None,
             ATTR_TURBO_MODE_SUPPORTED: None,
             ATTR_SLEEP_MODE: None,
+            ATTR_AUTO_DETECT: None,
         }
 
-        if self._model == MODEL_AIRPURIFIER_PRO:
+        if self.supported_features == SUPPORT_FLAGS_AIRPURIFIER_PRO:
             self._state_attrs.update({
                 ATTR_FILTER_RFID_PRODUCT_ID: None,
                 ATTR_FILTER_RFID_TAG: None,
                 ATTR_FILTER_TYPE: None,
                 ATTR_ILLUMINANCE: None,
                 ATTR_MOTOR2_SPEED: None,
-                ATTR_AUTO_DETECT: None,
             })
+
+        if self.supported_features & SUPPORT_SET_BUZZER == 1:
+            self._state_attrs[ATTR_BUZZER] = None
+
+        if self.supported_features & SUPPORT_SET_LED_BRIGHTNESS == 1:
+            self._state_attrs[ATTR_LED_BRIGHTNESS] = None
 
         self._skip_update = False
 
@@ -486,7 +490,6 @@ class XiaomiAirPurifier(XiaomiGenericDevice, FanEntity):
                 ATTR_FILTER_HOURS_USED: state.filter_hours_used,
                 ATTR_FILTER_LIFE: state.filter_life_remaining,
                 ATTR_FAVORITE_LEVEL: state.favorite_level,
-                ATTR_BUZZER: state.buzzer,
                 ATTR_CHILD_LOCK: state.child_lock,
                 ATTR_LED: state.led,
                 ATTR_MOTOR_SPEED: state.motor_speed,
@@ -497,24 +500,30 @@ class XiaomiAirPurifier(XiaomiGenericDevice, FanEntity):
                 ATTR_SLEEP_LEARN_COUNT: state.sleep_mode_learn_count,
                 ATTR_EXTRA_FEATURES: state.extra_features,
                 ATTR_TURBO_MODE_SUPPORTED: state.turbo_mode_supported,
+                ATTR_AUTO_DETECT: state.auto_detect,
             })
 
-            if self._model == MODEL_AIRPURIFIER_PRO:
+            if self.supported_features == SUPPORT_FLAGS_AIRPURIFIER_PRO:
                 self._state_attrs.update({
                     ATTR_FILTER_RFID_PRODUCT_ID: state.filter_rfid_product_id,
                     ATTR_FILTER_RFID_TAG: state.filter_rfid_tag,
-                    ATTR_FILTER_TYPE: state.filter_type,
                     ATTR_ILLUMINANCE: state.illuminance,
                     ATTR_MOTOR2_SPEED: state.motor2_speed,
-                    ATTR_AUTO_DETECT: state.auto_detect,
                 })
+                if state.filter_type:
+                    self._state_attrs[
+                        ATTR_FILTER_TYPE] = state.filter_type.value
+
+            if self.supported_features & SUPPORT_SET_BUZZER == 1:
+                self._state_attrs[ATTR_BUZZER] = state.buzzer
+
+            if self.supported_features & SUPPORT_SET_LED_BRIGHTNESS == 1 and \
+                    state.led_brightness:
+                self._state_attrs[
+                    ATTR_LED_BRIGHTNESS] = state.led_brightness.value
 
             if state.sleep_mode:
                 self._state_attrs[ATTR_SLEEP_MODE] = state.sleep_mode.value
-
-            if state.led_brightness:
-                self._state_attrs[
-                    ATTR_LED_BRIGHTNESS] = state.led_brightness.value
 
         except DeviceException as ex:
             self._state = None
@@ -524,7 +533,7 @@ class XiaomiAirPurifier(XiaomiGenericDevice, FanEntity):
     def speed_list(self: ToggleEntity) -> list:
         """Get the list of available speeds."""
         from miio.airpurifier import OperationMode
-        if self._model == MODEL_AIRPURIFIER_PRO:
+        if self.supported_features == SUPPORT_FLAGS_AIRPURIFIER_PRO:
             return [mode.name for mode in OperationMode if mode.name != 'Idle']
 
         return [mode.name for mode in OperationMode]
@@ -547,7 +556,7 @@ class XiaomiAirPurifier(XiaomiGenericDevice, FanEntity):
 
         yield from self._try_command(
             "Setting operation mode of the miio device failed.",
-            self._device.set_mode, OperationMode[speed])
+            self._device.set_mode, OperationMode(speed))
 
     @asyncio.coroutine
     def async_set_led_on(self):
@@ -748,7 +757,7 @@ class XiaomiAirHumidifier(XiaomiGenericDevice, FanEntity):
 
         yield from self._try_command(
             "Setting operation mode of the miio device failed.",
-            self._device.set_mode, OperationMode[speed])
+            self._device.set_mode, OperationMode(speed))
 
     @asyncio.coroutine
     def async_set_led_brightness(self, brightness: int = 2):
